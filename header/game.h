@@ -6,7 +6,7 @@ class Game{
 	//Vector For Keeping the Possible Moves for White
 	vector<int> w_moves;
 	vector<int> w_in_mov;
-	//Vector For Keeping the Possible Moves for White
+	//Vector For Keeping the Possible Moves for Black
 	vector<int> b_moves;
 	vector<int> b_in_mov;
 	public:
