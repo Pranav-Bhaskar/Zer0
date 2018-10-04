@@ -27,5 +27,4 @@ void Knight::moves(vector<int> &v){
 	
 	if((this->pos/8) - ((this->pos - 17)/8) == 2)
 		check_pos(v, this->pos - 17, this->side);
-	//write code here
 }

@@ -4,7 +4,7 @@
 		Important Notes
 	*Some standard for the code;
 	*The black will have side value as 1;
-	*The while will have side value as 3;
+	*The white will have side value as 3;
 	*The Black will be on the upper half of the board;
 	*The white will be on the lower half of the board;
 	*The empty spaces on the board will be represented by 0;
@@ -42,11 +42,6 @@
 int main (int argc, char const* argv[])
 {
 	Game g;
-	g.disp_g();
-	g.w_mov_Call();
-	g.w_mov_Disp();
-	g.b_mov_Call();
-	g.b_mov_Disp();
-	disp_help();
+	g.begin();
 	return 0;
 }

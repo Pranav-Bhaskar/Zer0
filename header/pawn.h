@@ -6,7 +6,7 @@ class Pawn : public Peice{
 void Pawn::moves(vector<int> &v){
 	if(this->side == 3){
 		 if(this->pos/8 == 1){
-		 	if(check_pos(v, this->pos + 8, this->side))
+		 	if(check_pos(v, this->pos + 8, this->side) == 1)
 		 		check_pos(v, this->pos + 16, this->side);
 		 }
 		 else{
@@ -15,7 +15,7 @@ void Pawn::moves(vector<int> &v){
 	}
 	else{
 		if(this->pos/8 == 6){
-		 	if(check_pos(v, this->pos - 8, this->side))
+		 	if(check_pos(v, this->pos - 8, this->side) == 1)
 		 		check_pos(v, this->pos - 16, this->side);
 		 }
 		 else{

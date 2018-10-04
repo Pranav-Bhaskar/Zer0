@@ -6,19 +6,35 @@ class Game{
 	//Vector For Keeping the Possible Moves for White
 	vector<int> w_moves;
 	vector<int> w_in_mov;
-	//Vector For Keeping the Possible Moves for White
+	//Vector For Keeping the Possible Moves for Black
 	vector<int> b_moves;
 	vector<int> b_in_mov;
-	public:
-	Game();
-	void disp_g();
-	void w_mov_Call();
+	
+	vector<int> post;
+	
+	int chance;	//A variable to keep track of the turn 1->White; 2->Black;
+	
+	
+	void w_mov_Call(int k = 1);
 	void w_mov_Disp();
-	void b_mov_Call();
+	void b_mov_Call(int k = 1);
 	void b_mov_Disp();
+	
+	int check_mate;	//Check if the king is in a check mate position		Priority : Medium
+	int stale_mate;	//Check if the king is in a stale mate position		Priority : Low
+	void check_checker(vector<int>&, int);	//A function to purify the moves the king can make	PRIORITY : HEIGH
+	
+	public:
+	
+	void disp_g();
+	Game();
+	void begin();
 };
 
 Game::Game(){
+	this->chance = 1;
+	this->check_mate = 0;
+	this->stale_mate = 0;
 	cout<<"\nCreating the Peices...";
 	//White Peices
 	
@@ -74,6 +90,69 @@ Game::Game(){
 		this->z[i]->init(i+47, 1);
 }
 
+void Game::check_checker(vector<int> &v, int k){
+	int ini;
+	if(this->chance == 1){
+		ini = this->Z[k]->loc();
+		for(int i=0;i<v.size();++i){
+			this->Z[k]->move(v[i]);
+			this->b_mov_Call(0);
+			for(int j = 0;j<this->b_moves.size();++j)
+				if(this->Z[0]->loc() == this->b_moves[j]){
+					v.erase(v.begin() + i);
+					--i;
+					break;
+				}
+		}
+		this->Z[k]->move(ini);
+	}
+	else{
+		ini = this->z[k]->loc();
+		for(int i=0;i<v.size();++i){
+			this->z[k]->move(v[i]);
+			this->w_mov_Call(0);
+			for(int j = 0;j<this->w_moves.size();++j)
+				if(this->z[0]->loc() == this->w_moves[j]){
+					v.erase(v.begin() + i);
+					--i;
+					break;
+				}
+		}
+		this->z[k]->move(ini);
+	}
+}
+
+void Game::begin(){
+	int opt;
+	while((this->check_mate | this->stale_mate) != 1){
+		disp_help();
+		this->disp_g();
+		if(this->chance){
+			do{
+				this->w_mov_Call();
+				this->w_mov_Disp();
+				cin>>opt;
+			}while(opt < 0 || opt >= this->post.size());
+			this->Z[this->post[opt]]->move(w_moves[opt]);
+			this->chance = 0;
+		}
+		else{
+			do{
+				this->b_mov_Call();
+				this->b_mov_Disp();
+				cin>>opt;
+			}while(opt < 0 || opt >= this->post.size());
+			this->z[this->post[opt]]->move(b_moves[opt]);
+			this->chance = 1;
+		}
+		
+	}
+	if(this->check_mate)
+		cout<<"\nCheckMate";
+	if(this->stale_mate)
+		cout<<"\nStaleMate";
+}
+
 void Game::disp_g(){
 	char board[8][8];
 	for(int i=0;i<8;++i)
@@ -97,42 +176,87 @@ void Game::disp_g(){
 	cout<<endl<<" ---------------------------------"<<endl;
 }
 
-void Game::w_mov_Call(){
+void Game::w_mov_Call(int k){
+	vector<int> v;
 	this->w_moves.clear();
 	this->w_in_mov.clear();
-	for(int i=0;i<16;++i)
+	if(k)
+		this->post.clear();
+	for(int i=0;i<16;++i){
 		if(this->Z[i]->loc() != -1){
-			this->Z[i]->moves(this->w_moves);
-			while(this->w_moves.size() != this->w_in_mov.size())
+			v.clear();
+			this->Z[i]->moves(v);
+			if(k == 1)
+				this->check_checker(v, i);
+			for(int l=0;l<v.size();++l){
+				this->w_moves.push_back(v[l]);
 				this->w_in_mov.push_back(this->Z[i]->loc());
+				if(k)
+					this->post.push_back(i);
+			}
 		}
+	}
+	if(k == 0)
+		return ;
+	if(this->w_moves.empty()){
+		this->b_mov_Call(0);
+		for(int j = 0;j<this->b_moves.size();++j)
+			if(this->Z[0]->loc() == this->b_moves[j]){
+				this->check_mate = 1;
+				return ;
+			}
+		this->stale_mate = 1;
+	}
 }
 
 void Game::w_mov_Disp(){
-	cout<<endl<<"Showing all posiible white moves"<<endl;
+	cout<<endl<<"Showing all possible white moves"<<endl;
 	for(int i=0;i<this->w_moves.size();++i){
-		cout<<this->w_in_mov[i]<<" -> "<<this->w_moves[i]<<"                     ";
+		cout<<i<<". "<<this->w_in_mov[i]<<" -> "<<this->w_moves[i]<<"                     ";
 		if(i&1 == 1)
 			cout<<endl;
 	}
 	cout<<endl;
 }
 
-void Game::b_mov_Call(){
+void Game::b_mov_Call(int k){
+	vector<int> v;
 	this->b_moves.clear();
 	this->b_in_mov.clear();
-	for(int i=0;i<16;++i)
+	if(k)
+		this->post.clear();
+	for(int i=0;i<16;++i){
 		if(this->z[i]->loc() != -1){
-			this->z[i]->moves(this->b_moves);
-			while(this->b_moves.size() != this->b_in_mov.size())
+			v.clear();
+			this->z[i]->moves(v);
+			if(k == 1)
+				this->check_checker(v, i);
+			for(int l=0;l<v.size();++l){
+				this->b_moves.push_back(v[l]);
 				this->b_in_mov.push_back(this->z[i]->loc());
+				if(k)
+					this->post.push_back(i);
+			}
 		}
+	}
+	if(k == 0)
+		return ;
+	if(this->b_moves.empty()){
+		this->w_mov_Call(0);
+		for(int j = 0;j<this->w_moves.size();++j){
+			if(this->z[0]->loc() == this->w_moves[j]){
+				this->check_mate = 1;
+				return ;
+			}
+		}
+		this->stale_mate = 1;
+	}
 }
 
 void Game::b_mov_Disp(){
-	cout<<endl<<"Showing all posiible black moves"<<endl;
+	cout<<endl<<"Showing all possible black moves"<<endl;
 	for(int i=0;i<this->b_moves.size();++i){
-		cout<<this->b_in_mov[i]<<" -> "<<this->b_moves[i]<<"                     ";
+		cout<<i<<". "<<this->b_in_mov[i]<<" -> "<<this->b_moves[i]<<"                     ";
 		if(i&1 == 1)
 			cout<<endl;
 	}
