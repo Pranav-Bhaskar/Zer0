@@ -124,24 +124,32 @@ void Game::check_checker(vector<int> &v, int k){
 
 void Game::begin(){
 	int opt;
-	while((this->check_mate | this->stale_mate) != 1){
+	while(1){
 		disp_help();
 		this->disp_g();
 		if(this->chance){
 			do{
 				this->w_mov_Call();
+				if((this->check_mate | this->stale_mate) == 1)
+					break;
 				this->w_mov_Disp();
 				cin>>opt;
 			}while(opt < 0 || opt >= this->post.size());
+			if((this->check_mate | this->stale_mate) == 1)
+				break;
 			this->Z[this->post[opt]]->move(w_moves[opt]);
 			this->chance = 0;
 		}
 		else{
 			do{
 				this->b_mov_Call();
+				if((this->check_mate | this->stale_mate) == 1)
+					break;
 				this->b_mov_Disp();
 				cin>>opt;
 			}while(opt < 0 || opt >= this->post.size());
+			if((this->check_mate | this->stale_mate) == 1)
+				break;
 			this->z[this->post[opt]]->move(b_moves[opt]);
 			this->chance = 1;
 		}
