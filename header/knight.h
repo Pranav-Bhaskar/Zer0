@@ -4,6 +4,8 @@ class Knight : public Peice{
 };
 
 void Knight::moves(vector<int> &v){
+	if(this->pos == -1)
+		return ;
 	if(((this->pos + 15)/8) - (this->pos/8) == 2)
 		check_pos(v, this->pos + 15, this->side);
 	
