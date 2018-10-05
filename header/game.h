@@ -25,13 +25,15 @@ class Game{
 	int stale_mate;	//Check if the Zer0 is in a stale mate position	
 	void check_checker(vector<int>&, int);	//A function to purify the moves the king can make
 	
-	void mover(int, int);
+	void mover(int, int, int = 0);
 	void get_pos();
 	void set_pos();
 	
-	public:
-	
 	void disp_g();
+	
+	void promote(int, int);
+	
+	public:
 	Game();
 	void begin();
 };
@@ -144,19 +146,52 @@ void Game::check_checker(vector<int> &v, int k){
 	}
 }
 
-void Game::mover(int k, int posi){
+void Game::promote(int k, int posi){
+	int opt;
+	Peice *tem;
+	do{
+		cout<<"\n1.Queen\n2.Rook\n3.Knight\n4.Bishop\nEnter choice : ";
+		cin>>opt;
+	}while(opt < 1 || opt > 4);
+	switch(opt){
+	case 1: tem = new Queen;
+		brd[k] = 'Q';
+		break;
+	case 2: tem = new Rook;
+		brd[k] = 'R';
+		break;
+	case 3: tem = new Knight;
+		brd[k] = 'K';
+		break;
+	case 4: tem = new Bishop;
+		brd[k] = 'B';
+		break;
+	}
+	if(k < 16){
+		this->Z[k] = tem;
+		this->Z[k]->init(posi, 3);
+		return ;
+	}
+	k -= 16;
+	this->z[k] = tem;
+	this->z[k]->init(posi, 1);
+}
+
+void Game::mover(int k, int posi, int l){
 	if(k < 16){
 		for(int i=0;i<16;++i)
 			if(this->pos[i + 16] == posi)
 				this->z[i]->move(-1);
-		this->Z[k]->move(posi);
+		if(l && this->Z[k]->move(posi))
+			promote(k, posi);
 		return ;
 	}
 	k -= 16;
 	for(int i=0;i<16;++i)
 		if(this->pos[i] == posi)
 			this->Z[i]->move(-1);
-	this->z[k]->move(posi);
+	if(l && this->z[k]->move(posi))
+		promote(k + 16, posi);
 }
 
 void Game::begin(){
@@ -174,7 +209,7 @@ void Game::begin(){
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
-			this->mover(this->post[opt], w_moves[opt]);
+			this->mover(this->post[opt], w_moves[opt], 1);
 			this->get_pos();
 			this->chance = 0;
 		}
@@ -188,7 +223,7 @@ void Game::begin(){
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
-			this->mover(this->post[opt] + 16, b_moves[opt]);
+			this->mover(this->post[opt] + 16, b_moves[opt], 1);
 			this->get_pos();
 			this->chance = 1;
 		}
@@ -213,7 +248,7 @@ void Game::disp_g(){
 	//Black Pieces
 	for(int i=0;i<16;++i)
 		if(this->z[i]->loc() != -1)
-			board[this->z[i]->loc()/8][this->z[i]->loc()%8] = brd[i] + 32;
+			board[this->z[i]->loc()/8][this->z[i]->loc()%8] = brd[i + 16] + 32;
 	
 	for(int i=7;i >= 0 ;--i){
 		cout<<endl<<" ---------------------------------"<<endl<<" |";

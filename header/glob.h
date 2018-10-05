@@ -34,6 +34,16 @@ int check_pos(vector<int> &v, int pos, int side){
 	return 0;
 }
 
+int touch_pos(int pos, int side){
+	if(pos < 0 || pos > 63)
+		return 0;
+	if(board[pos/8][pos%8] == 0)
+		return 1;
+	if(board[pos/8][pos%8] != side)
+		return 2;
+	return 0;
+}
+
 void disp_brd(){
 	for(int i=7;i >= 0 ;--i){
 		cout<<endl<<" ---------------------------------"<<endl<<" |";

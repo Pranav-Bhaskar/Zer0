@@ -13,7 +13,7 @@ class Peice{
 	
 	public:
 	virtual void moves(vector<int>&)=0;
-	void move(int);
+	virtual int move(int);
 	void init(int, int);
 	int loc();
 };
@@ -25,11 +25,12 @@ void Peice::init(int k, int l){
 	board[k/8][k%8] = l;
 }
 
-void Peice::move(int k){
+int Peice::move(int k){
 	board[this->pos/8][this->pos%8] = 0;
 	this->pos = k;
 	if(k != -1)
 		board[this->pos/8][this->pos%8] = this->side;
+	return 0;
 }
 
 int Peice::loc(){
