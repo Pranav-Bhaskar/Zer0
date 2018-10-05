@@ -28,7 +28,8 @@ void Peice::init(int k, int l){
 void Peice::move(int k){
 	board[this->pos/8][this->pos%8] = 0;
 	this->pos = k;
-	board[this->pos/8][this->pos%8] = this->side;
+	if(k != -1)
+		board[this->pos/8][this->pos%8] = this->side;
 }
 
 int Peice::loc(){

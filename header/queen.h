@@ -4,6 +4,8 @@ class Queen: public Peice{
 };
 
 void Queen::moves(vector<int> &v){
+	if(this->pos == -1)
+		return ;
 	this->nc(v);	//North condition
 	this->sc(v);	//South Condition
 	this->ec(v);	//East Condition

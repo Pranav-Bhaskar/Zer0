@@ -4,6 +4,8 @@ class Pawn : public Peice{
 };
 
 void Pawn::moves(vector<int> &v){
+	if(this->pos == -1)
+		return ;
 	if(this->side == 3){
 		 if(this->pos/8 == 1){
 		 	if(check_pos(v, this->pos + 8, this->side) == 1)

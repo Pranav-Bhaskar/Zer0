@@ -14,15 +14,20 @@ class Game{
 	
 	int chance;	//A variable to keep track of the turn 1->White; 2->Black;
 	
+	int *pos;
 	
 	void w_mov_Call(int k = 1);
 	void w_mov_Disp();
 	void b_mov_Call(int k = 1);
 	void b_mov_Disp();
 	
-	int check_mate;	//Check if the king is in a check mate position		Priority : Medium
-	int stale_mate;	//Check if the king is in a stale mate position		Priority : Low
-	void check_checker(vector<int>&, int);	//A function to purify the moves the king can make	PRIORITY : HEIGH
+	int check_mate;	//Check if the Zer0 is in a check mate position	
+	int stale_mate;	//Check if the Zer0 is in a stale mate position	
+	void check_checker(vector<int>&, int);	//A function to purify the moves the king can make
+	
+	void mover(int, int);
+	void get_pos();
+	void set_pos();
 	
 	public:
 	
@@ -35,6 +40,7 @@ Game::Game(){
 	this->chance = 1;
 	this->check_mate = 0;
 	this->stale_mate = 0;
+	this->pos = new int [32];
 	cout<<"\nCreating the Peices...";
 	//White Peices
 	
@@ -88,14 +94,29 @@ Game::Game(){
 	this->z[15]->init(62, 1);
 	for(int i=1;i<=8;++i)
 		this->z[i]->init(i+47, 1);
+	this->get_pos();
+}
+
+void Game::get_pos(){
+	for(int i=0;i<16;++i){
+		this->pos[i] = this->Z[i]->loc();
+		this->pos[i + 16] = this->z[i]->loc();
+	}
+}
+
+void Game::set_pos(){
+	for(int i=0;i<16;++i){
+		this->Z[i]->move(this->pos[i]);
+		this->z[i]->move(this->pos[i + 16]);
+	}
 }
 
 void Game::check_checker(vector<int> &v, int k){
 	int ini;
 	if(this->chance == 1){
-		ini = this->Z[k]->loc();
+		this->get_pos();
 		for(int i=0;i<v.size();++i){
-			this->Z[k]->move(v[i]);
+			this->mover(k, v[i]);
 			this->b_mov_Call(0);
 			for(int j = 0;j<this->b_moves.size();++j)
 				if(this->Z[0]->loc() == this->b_moves[j]){
@@ -103,13 +124,14 @@ void Game::check_checker(vector<int> &v, int k){
 					--i;
 					break;
 				}
+			this->set_pos();
 		}
-		this->Z[k]->move(ini);
+		
 	}
 	else{
-		ini = this->z[k]->loc();
+		this->get_pos();
 		for(int i=0;i<v.size();++i){
-			this->z[k]->move(v[i]);
+			this->mover(k + 16, v[i]);
 			this->w_mov_Call(0);
 			for(int j = 0;j<this->w_moves.size();++j)
 				if(this->z[0]->loc() == this->w_moves[j]){
@@ -117,9 +139,24 @@ void Game::check_checker(vector<int> &v, int k){
 					--i;
 					break;
 				}
+			this->set_pos();
 		}
-		this->z[k]->move(ini);
 	}
+}
+
+void Game::mover(int k, int posi){
+	if(k < 16){
+		for(int i=0;i<16;++i)
+			if(this->pos[i + 16] == posi)
+				this->z[i]->move(-1);
+		this->Z[k]->move(posi);
+		return ;
+	}
+	k -= 16;
+	for(int i=0;i<16;++i)
+		if(this->pos[i] == posi)
+			this->Z[i]->move(-1);
+	this->z[k]->move(posi);
 }
 
 void Game::begin(){
@@ -137,7 +174,8 @@ void Game::begin(){
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
-			this->Z[this->post[opt]]->move(w_moves[opt]);
+			this->mover(this->post[opt], w_moves[opt]);
+			this->get_pos();
 			this->chance = 0;
 		}
 		else{
@@ -150,7 +188,8 @@ void Game::begin(){
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
-			this->z[this->post[opt]]->move(b_moves[opt]);
+			this->mover(this->post[opt] + 16, b_moves[opt]);
+			this->get_pos();
 			this->chance = 1;
 		}
 		

@@ -4,6 +4,8 @@ class Bishop : public Peice{
 };
 
 void Bishop::moves(vector<int> &v){
+	if(this->pos == -1)
+		return ;
 	this->ne(v);	//Diognal Check (north-east)
 	this->sw(v);	//Diognal Check (south-west)
 	this->nw(v);	//Diognal Check (north-west)
