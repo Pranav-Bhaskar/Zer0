@@ -361,9 +361,9 @@ void Game::begin(){
 		}
 	}
 	if(this->check_mate)
-		cout<<"\nCheckMate";
+		cout<<"\nCheckMate\n";
 	if(this->stale_mate)
-		cout<<"\nStaleMate";
+		cout<<"\nStaleMate\n";
 }
 
 void Game::disp_g(){
@@ -413,7 +413,7 @@ void Game::w_mov_Call(int k){
 	if(k == 0)
 		return ;
 	
-	if(this->w_moves.empty()){
+	if(this->post.empty()){
 		this->b_mov_Call(0);
 		for(int j = 0;j<this->b_moves.size();++j)
 			if(this->Z[0]->loc() == this->b_moves[j]){
@@ -458,7 +458,7 @@ void Game::b_mov_Call(int k){
 	if(k == 0)
 		return ;
 	
-	if(this->b_moves.empty()){
+	if(this->post.empty()){
 		this->w_mov_Call(0);
 		for(int j = 0;j<this->w_moves.size();++j){
 			if(this->z[0]->loc() == this->w_moves[j]){
