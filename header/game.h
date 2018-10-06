@@ -144,7 +144,6 @@ void Game::check_checker(vector<int> &v, int k){
 				}
 			this->set_pos();
 		}
-		
 	}
 	else{
 		this->get_pos();
@@ -325,7 +324,7 @@ void Game::begin(){
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
-			this->mover(this->post[opt], w_moves[opt], 1);
+			this->mover(this->post[opt], this->w_moves[opt], 1);
 			switch(this->post[opt]){
 			case 0: this->w_zer0 = 0;
 				break;
@@ -347,7 +346,7 @@ void Game::begin(){
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
-			this->mover(this->post[opt] + 16, b_moves[opt], 1);
+			this->mover(this->post[opt] + 16, this->b_moves[opt], 1);
 			switch(this->post[opt]){
 			case 0: this->b_zer0 = 0;
 				break;
@@ -409,10 +408,10 @@ void Game::w_mov_Call(int k){
 			}
 		}
 	}
-	this->castle(true, k);
+	
 	if(k == 0)
 		return ;
-	
+	this->castle(true, k);
 	if(this->post.empty()){
 		this->b_mov_Call(0);
 		for(int j = 0;j<this->b_moves.size();++j)
@@ -454,10 +453,10 @@ void Game::b_mov_Call(int k){
 			}
 		}
 	}
-	this->castle(false, k);
+	
 	if(k == 0)
 		return ;
-	
+	this->castle(false, k);
 	if(this->post.empty()){
 		this->w_mov_Call(0);
 		for(int j = 0;j<this->w_moves.size();++j){
