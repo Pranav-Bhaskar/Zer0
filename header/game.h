@@ -23,7 +23,7 @@ class Game{
 	
 	int check_mate;	//Check if the Zer0 is in a check mate position	
 	int stale_mate;	//Check if the Zer0 is in a stale mate position	
-	void check_checker(vector<int>&, int);	//A function to purify the moves the king can make
+	void check_checker(vector<int>&, int);	//A function to purify the moves the Zero can make
 	
 	void mover(int, int);
 	void get_pos();
