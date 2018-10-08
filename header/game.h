@@ -43,7 +43,8 @@ class Game{
 	void castle(bool);	//Adds the feature of castling
 	void castle_em(int);	//impliments castling
 	
-	void enpassent(bool, int);
+	void enpassent(bool);
+	int enpasser;
 	public:
 	Game();
 	void begin();
@@ -61,6 +62,7 @@ Game::Game(){
 	this->b_rok1 = 1;
 	this->b_rok2 = 1;
 	this->pos = new int [32];
+	enpass = -1;
 	cout<<"\nCreating the Peices...";
 	//White Peices
 	
@@ -122,6 +124,7 @@ void Game::get_pos(){
 		this->pos[i] = this->Z[i]->loc();
 		this->pos[i + 16] = this->z[i]->loc();
 	}
+	this->enpasser = enpass;
 }
 
 void Game::set_pos(){
@@ -129,6 +132,7 @@ void Game::set_pos(){
 		this->Z[i]->move(this->pos[i]);
 		this->z[i]->move(this->pos[i + 16]);
 	}
+	enpass = this->enpasser;
 }
 
 void Game::check_checker(vector<int> &v, int k){
@@ -161,6 +165,18 @@ void Game::check_checker(vector<int> &v, int k){
 			this->set_pos();
 		}
 	}
+}
+
+void Game::enpassent(bool k){
+	if(k){
+		for(int i=1;i<9;++i)
+			if(this->pos[i + 16] == enpass)
+				this->z[i]->move(-1);
+		return ;
+	}
+	for(int i=1;i<9;++i)
+		if(this->pos[i] == enpass)
+			this->Z[i]->move(-1);
 }
 
 void Game::promote(int k, int posi){
@@ -290,10 +306,18 @@ void Game::mover(int k, int posi, int l){
 			if(this->pos[i + 16] == posi)
 				this->z[i]->move(-1);
 		t = this->Z[k]->move(posi);
-		if(l && (t == 1))
-			this->promote(k, posi);
-		if(l && (t == 2))
-			this->castle_em(posi);
+		if(!l)
+			return ;
+		switch(t){
+		case 1: this->promote(k, posi);
+			break;
+		case 2: this->castle_em(posi);
+			break;
+		case 3: break;
+		case 4: enpassent(true);
+			break;
+		default:enpass = -1;
+		}
 		return ;
 	}
 	k -= 16;
@@ -301,10 +325,18 @@ void Game::mover(int k, int posi, int l){
 		if(this->pos[i] == posi)
 			this->Z[i]->move(-1);
 	t = this->z[k]->move(posi);
-	if(l && (t == 1))
-		this->promote(k + 16, posi);
-	if(l && (t == 2))
-		this->castle_em(posi);
+	if(!l)
+		return ;
+	switch(t){
+	case 1: this->promote(k + 16, posi);
+		break;
+	case 2: this->castle_em(posi);
+		break;
+	case 3: break;
+	case 4: enpassent(false);
+		break;
+	default:enpass = -1;
+	}
 }
 
 void Game::begin(){

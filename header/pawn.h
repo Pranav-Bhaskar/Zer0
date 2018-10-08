@@ -5,13 +5,20 @@ class Pawn : public Peice{
 };
 
 int Pawn::move(int k){
+	int t = 0;
 	board[this->pos/8][this->pos%8] = 0;
+	if(((this->pos%8 - k%8) == 1 || (k%8 - this->pos%8) == 1) && (board[k/8][k%8] == 0))
+		t = 4;
+	if((this->pos/8 - k/8) == 2 || (k/8 - this->pos/8) == 2){
+		enpass = k;
+		t = 3;
+	}
 	this->pos = k;
 	if(k != -1)
 		board[this->pos/8][this->pos%8] = this->side;
 	if(((this->pos/8) == 7) || ((this->pos/8) == 0))
 		return 1;
-	return 0;
+	return t;
 }
 
 void Pawn::moves(vector<int> &v){
@@ -62,6 +69,19 @@ void Pawn::moves(vector<int> &v){
 		 if(touch_pos(this->pos - 7, this->side) == 2)
 			check_pos(v, this->pos - 7, this->side);
 	}
-	
+	if(enpass != -1){
+		if(this->side == 3){
+			if((this->pos/8 == (this->pos + 1)/8) && (touch_pos(this->pos + 1, this->side) == 2) && (enpass == this->pos + 1))
+				check_pos(v, this->pos + 9, this->side);
+			if((this->pos/8 == (this->pos - 1)/8) && (touch_pos(this->pos - 1, this->side) == 2) && (enpass == this->pos - 1))
+				check_pos(v, this->pos + 7, this->side);
+		}
+		else{
+			if((this->pos/8 == (this->pos + 1)/8) && (touch_pos(this->pos + 1, this->side) == 2) && (enpass == this->pos + 1))
+				check_pos(v, this->pos - 7, this->side);
+			if((this->pos/8 == (this->pos - 1)/8) && (touch_pos(this->pos - 1, this->side) == 2) && (enpass == this->pos - 1))
+				check_pos(v, this->pos - 9, this->side);
+		}
+	}
 }
 

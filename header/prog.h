@@ -3,6 +3,7 @@
 
 using namespace std;
 
+int enpass;
 int board[8][8];
 char brd[] = {'Z', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'Q', 'R', 'R', 'B', 'B', 'K', 'K', 'Z', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'Q', 'R', 'R', 'B', 'B', 'K', 'K'};
 
