@@ -6,6 +6,7 @@ using namespace std;
 int board[8][8];
 char brd[] = {'Z', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'Q', 'R', 'R', 'B', 'B', 'K', 'K', 'Z', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'Q', 'R', 'R', 'B', 'B', 'K', 'K'};
 
+int siner();
 void disp_help();
 int check_pos(vector<int>&, int, int);
 int touch_pos(int, int);

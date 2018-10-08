@@ -40,8 +40,10 @@ class Game{
 	int b_rok1;	//pos -> 56
 	int b_rok2;	//pos -> 63
 
-	void castle(bool, int);	//Adds the feature of castling
+	void castle(bool);	//Adds the feature of castling
 	void castle_em(int);	//impliments castling
+	
+	void enpassent(bool, int);
 	public:
 	Game();
 	void begin();
@@ -166,7 +168,7 @@ void Game::promote(int k, int posi){
 	Peice *tem;
 	do{
 		cout<<"\n1.Queen\n2.Rook\n3.Knight\n4.Bishop\nEnter choice : ";
-		cin>>opt;
+		opt = siner();
 	}while(opt < 1 || opt > 4);
 	switch(opt){
 	case 1: tem = new Queen;
@@ -205,13 +207,13 @@ void Game::castle_em(int posi){
 	}
 }
 
-void Game::castle(bool f, int l){
+void Game::castle(bool f){
 	vector<int> tem;
 	int f_1, f_2;
 	f_1 = 1;
 	f_2 = 1;
 	if(f){
-		if((this->chance == 1) && (l == 0))
+		if(this->chance == 1)
 			return ;
 		this->b_mov_Call(0);
 		for(int j = 0;j<this->b_moves.size();++j){
@@ -228,8 +230,7 @@ void Game::castle(bool f, int l){
 				if(3 == tem[j]){
 					this->w_moves.push_back(2);
 					this->w_in_mov.push_back(this->Z[0]->loc());
-					if(l)
-						this->post.push_back(0);
+					this->post.push_back(0);
 					break;
 				}
 					
@@ -241,14 +242,13 @@ void Game::castle(bool f, int l){
 				if(5 == tem[j]){
 					this->w_moves.push_back(6);
 					this->w_in_mov.push_back(this->Z[0]->loc());
-					if(l)
-						this->post.push_back(0);
+					this->post.push_back(0);
 					break;
 				}
 		}
 		return ;
 	}
-	if((this->chance == 0) && (l == 0))
+	if(this->chance == 0)
 		return ;
 	this->w_mov_Call(0);
 	for(int j = 0;j<this->w_moves.size();++j){
@@ -265,8 +265,7 @@ void Game::castle(bool f, int l){
 			if(59 == tem[j]){
 				this->b_moves.push_back(58);
 				this->b_in_mov.push_back(this->z[0]->loc());
-				if(l)
-					this->post.push_back(0);
+				this->post.push_back(0);
 				break;
 			}
 				
@@ -278,8 +277,7 @@ void Game::castle(bool f, int l){
 			if(61 == tem[j]){
 				this->b_moves.push_back(62);
 				this->b_in_mov.push_back(this->z[0]->loc());
-				if(l)
-					this->post.push_back(0);
+				this->post.push_back(0);
 				break;
 			}
 	}
@@ -320,7 +318,7 @@ void Game::begin(){
 				if((this->check_mate | this->stale_mate) == 1)
 					break;
 				this->w_mov_Disp();
-				cin>>opt;
+				opt = siner();
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
@@ -342,7 +340,7 @@ void Game::begin(){
 				if((this->check_mate | this->stale_mate) == 1)
 					break;
 				this->b_mov_Disp();
-				cin>>opt;
+				opt = siner();
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
@@ -411,7 +409,7 @@ void Game::w_mov_Call(int k){
 	
 	if(k == 0)
 		return ;
-	this->castle(true, k);
+	this->castle(true);
 	if(this->post.empty()){
 		this->b_mov_Call(0);
 		for(int j = 0;j<this->b_moves.size();++j)
@@ -456,7 +454,7 @@ void Game::b_mov_Call(int k){
 	
 	if(k == 0)
 		return ;
-	this->castle(false, k);
+	this->castle(false);
 	if(this->post.empty()){
 		this->w_mov_Call(0);
 		for(int j = 0;j<this->w_moves.size();++j){
