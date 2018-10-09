@@ -47,6 +47,7 @@ class Game{
 	int enpasser;
 	public:
 	Game();
+	//we might have to make a new variable to check if the bot is playing play
 	void begin();
 };
 
@@ -229,8 +230,6 @@ void Game::castle(bool f){
 	f_1 = 1;
 	f_2 = 1;
 	if(f){
-		if(this->chance == 1)
-			return ;
 		this->b_mov_Call(0);
 		for(int j = 0;j<this->b_moves.size();++j){
 			if(this->Z[0]->loc() == this->b_moves[j])
@@ -264,8 +263,6 @@ void Game::castle(bool f){
 		}
 		return ;
 	}
-	if(this->chance == 0)
-		return ;
 	this->w_mov_Call(0);
 	for(int j = 0;j<this->w_moves.size();++j){
 		if(this->z[0]->loc() == this->w_moves[j])
