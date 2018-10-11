@@ -1,5 +1,7 @@
 #include<iostream>
 #include<vector>
+#include <cstdlib>	//For rand() and srand()
+#include <ctime>	//To get ime to seed random generator
 
 using namespace std;
 

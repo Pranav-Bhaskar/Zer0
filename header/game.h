@@ -12,7 +12,7 @@ class Game{
 	
 	vector<int> post;
 	
-	int chance;	//A variable to keep track of the turn 1->White; 2->Black;
+	bool chance;	//A variable to keep track of the turn 1->White; 2->Black;
 	
 	int *pos;
 	
@@ -45,15 +45,18 @@ class Game{
 	
 	void enpassent(bool);
 	int enpasser;
+	
+	bool player1;	//player ? pvp : bvp(bot vs player)
+	bool player2;
+	int p2(bool);	//the bot makes his chice here and returns it 
 	public:
 	Game();
-	//we might have to make a new variable to check if the bot is playing play
 	void begin();
 };
 
 Game::Game(){
 	//initializing variables
-	this->chance = 1;
+	this->chance = true;
 	this->check_mate = 0;
 	this->stale_mate = 0;
 	this->w_zer0 = 1;
@@ -118,6 +121,14 @@ Game::Game(){
 	for(int i=1;i<=8;++i)
 		this->z[i]->init(i+47, 1);
 	this->get_pos();
+	char ch;
+	cout<<"\nPress 1 to make player 1 a bot : ";
+	cin>>ch;
+	this->player1 = (ch == '1') ? false : true;
+	cout<<"\nPress 1 to make player 2 a bot : ";
+	cin>>ch;
+	this->player2 = (ch == '1') ? false : true;
+	srand(time(NULL));
 }
 
 void Game::get_pos(){
@@ -138,7 +149,7 @@ void Game::set_pos(){
 
 void Game::check_checker(vector<int> &v, int k){
 	int ini;
-	if(this->chance == 1){
+	if(this->chance){
 		this->get_pos();
 		for(int i=0;i<v.size();++i){
 			this->mover(k, v[i]);
@@ -185,7 +196,10 @@ void Game::promote(int k, int posi){
 	Peice *tem;
 	do{
 		cout<<"\n1.Queen\n2.Rook\n3.Knight\n4.Bishop\nEnter choice : ";
-		opt = siner();
+		if(this->chance)
+			opt = (this->player1) ? siner() : p2(false);
+		else
+			opt = (this->player2) ? siner() : p2(false);
 	}while(opt < 1 || opt > 4);
 	switch(opt){
 	case 1: tem = new Queen;
@@ -336,6 +350,16 @@ void Game::mover(int k, int posi, int l){
 	}
 }
 
+int Game::p2(bool b){
+	int t;
+	if(b)
+		t = rand() % ( (this->chance) ? this->w_moves.size() : this->b_moves.size() );
+	else
+		t = ( rand() % 4 ) + 1;
+	cout<<endl<<t;
+	return t;
+}
+
 void Game::begin(){
 	int opt;
 	while(1){
@@ -347,7 +371,7 @@ void Game::begin(){
 				if((this->check_mate | this->stale_mate) == 1)
 					break;
 				this->w_mov_Disp();
-				opt = siner();
+				opt = this->player1 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
@@ -361,7 +385,6 @@ void Game::begin(){
 				break; 
 			}
 			this->get_pos();	//XLAR8 you have to give a call to your history function here; When doing so delete this call;
-			this->chance = 0;
 		}
 		else{
 			do{
@@ -369,7 +392,7 @@ void Game::begin(){
 				if((this->check_mate | this->stale_mate) == 1)
 					break;
 				this->b_mov_Disp();
-				opt = siner();
+				opt = this->player2 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());
 			if((this->check_mate | this->stale_mate) == 1)
 				break;
@@ -383,13 +406,18 @@ void Game::begin(){
 				break; 
 			}
 			this->get_pos();	//XLAR8 you have to give a call to your history function here; When doing so delete this call;
-			this->chance = 1;
 		}
+		this->chance = !this->chance;
 	}
 	if(this->check_mate)
-		cout<<"\nCheckMate\n";
+		cout<<"\nCheckMate from ";
 	if(this->stale_mate)
-		cout<<"\nStaleMate\n";
+		cout<<"\nStaleMate from ";
+	if(this->chance)
+		cout<<"Black\n";
+	if(!this->chance)
+		cout<<"White\n";
+	
 }
 
 void Game::disp_g(){
