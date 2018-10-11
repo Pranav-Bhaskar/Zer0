@@ -25,14 +25,14 @@ void Zero::moves(vector<int> &v){
 		return ;
 	check_pos(v, this->pos + 8, this->side);
 	check_pos(v, this->pos - 8, this->side);
-	if(((pos-1)/8) == (pos/8)){
+	if((this->pos%8) != 0){
 		check_pos(v, this->pos - 1, this->side);
-	 	check_pos(v, this->pos + 9, this->side);
+	 	check_pos(v, this->pos + 7, this->side);
 	 	check_pos(v, this->pos - 9, this->side);
 	}
-	if(((pos+1)/8) == (pos/8)){
+	if((this->pos%8) != 7){
 	 	check_pos(v, this->pos + 1, this->side);
-	 	check_pos(v, this->pos + 7, this->side);
+	 	check_pos(v, this->pos + 9, this->side);
 	 	check_pos(v, this->pos - 7, this->side);
 	}
 }
