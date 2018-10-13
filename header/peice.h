@@ -1,21 +1,21 @@
 class Peice{
 	protected:
-	int pos;
-	int side;
-	void nc(vector<int>&);
-	void sc(vector<int>&);
-	void ec(vector<int>&);
-	void wc(vector<int>&);
-	void ne(vector<int>&);
-	void sw(vector<int>&);
-	void nw(vector<int>&);
-	void se(vector<int>&);
+	int pos;			//Stores the current position of the peice
+	int side;			//Stores the side of the peice
+	void nc(vector<int>&);			//North Check
+	void sc(vector<int>&);			//South Check
+	void ec(vector<int>&);			//East Check
+	void wc(vector<int>&);			//West Check
+	void ne(vector<int>&);			//North-East Check
+	void sw(vector<int>&);			//South-West Check
+	void nw(vector<int>&);			//North-West Check
+	void se(vector<int>&);			//South-East Check
 	
 	public:
-	virtual void moves(vector<int>&)=0;
-	virtual int move(int);
-	void init(int, int);
-	int loc();
+	virtual void moves(vector<int>&)=0;	//Used to calculate all the moves the peice can make and append it to a vector
+	virtual int move(int);			//Used to move the peice from its current position to the given position NOTE : this is overwriden in some derived classes
+	void init(int, int);			//Used to initialize the peice
+	int loc();				//return the current location of the peice
 };
 
 

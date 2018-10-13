@@ -14,7 +14,7 @@ class Game{
 	
 	bool chance;	//A variable to keep track of the turn 1->White; 2->Black;
 	
-	int *pos;
+	int *pos;	//This pointer will be used to point to an array of integers which would have position of all peices in the game
 	
 	void w_mov_Call(int k = 1);
 	void w_mov_Disp();
@@ -120,7 +120,8 @@ Game::Game(){
 	this->z[15]->init(62, 1);
 	for(int i=1;i<=8;++i)
 		this->z[i]->init(i+47, 1);
-	this->get_pos();
+	
+	this->get_pos();	//making a backup of the current state of the board
 	char ch;
 	cout<<"\nPress 1 to make player 1 a bot : ";
 	cin>>ch;
@@ -131,7 +132,7 @@ Game::Game(){
 	srand(time(NULL));
 }
 
-void Game::get_pos(){
+void Game::get_pos(){		//To get the currnt state of the board and store it as backup or checkpoint
 	for(int i=0;i<16;++i){
 		this->pos[i] = this->Z[i]->loc();
 		this->pos[i + 16] = this->z[i]->loc();
@@ -139,7 +140,7 @@ void Game::get_pos(){
 	this->enpasser = enpass;
 }
 
-void Game::set_pos(){
+void Game::set_pos(){		//A function to restore the state of the board which was made from using the get_pos() function
 	for(int i=0;i<16;++i){
 		this->Z[i]->move(this->pos[i]);
 		this->z[i]->move(this->pos[i + 16]);
@@ -147,23 +148,23 @@ void Game::set_pos(){
 	enpass = this->enpasser;
 }
 
-void Game::check_checker(vector<int> &v, int k){
+void Game::check_checker(vector<int> &v, int k){	//a function used to remove all the moves which could lead the Zer0 into check
 	int ini;
-	if(this->chance){
-		this->get_pos();
+	if(this->chance){	//enters this if is a white peice
+		this->get_pos();	//will make a copy of the current status of the board 
 		for(int i=0;i<v.size();++i){
-			this->mover(k, v[i]);
-			this->b_mov_Call(0);
+			this->mover(k, v[i]);	//this move the kth element in the white side in the array to position v[i]
+			this->b_mov_Call(0);	//will calculate all valid moves the black will be able to make if kth element is moved to position v[i]
 			for(int j = 0;j<this->b_moves.size();++j)
-				if(this->Z[0]->loc() == this->b_moves[j]){
-					v.erase(v.begin() + i);
+				if(this->Z[0]->loc() == this->b_moves[j]){	//will check if moving the kth element to position v[i] lead to the check on the white Zer0
+					v.erase(v.begin() + i);			//if it lead to a check then the kth peice will not be allowed to move to position v[i]
 					--i;
 					break;
 				}
-			this->set_pos();
+			this->set_pos();	//this will reset the whole board the situation it was at the begining of this function 
 		}
 	}
-	else{
+	else{		//enters this if it is a black peice (similar to whatis happening for the white peice)
 		this->get_pos();
 		for(int i=0;i<v.size();++i){
 			this->mover(k + 16, v[i]);
@@ -179,7 +180,7 @@ void Game::check_checker(vector<int> &v, int k){
 	}
 }
 
-void Game::enpassent(bool k){
+void Game::enpassent(bool k){		//This function will be called if any pawn moves an enpassent
 	if(k){
 		for(int i=1;i<9;++i)
 			if(this->pos[i + 16] == enpass)
@@ -191,7 +192,7 @@ void Game::enpassent(bool k){
 			this->Z[i]->move(-1);
 }
 
-void Game::promote(int k, int posi){
+void Game::promote(int k, int posi){	//If a pawn reaches the end of the board this function is called to promote it to the peice it wants
 	int opt;
 	Peice *tem;
 	do{
@@ -225,7 +226,7 @@ void Game::promote(int k, int posi){
 	this->z[k]->init(posi, 1);
 }
 
-void Game::castle_em(int posi){
+void Game::castle_em(int posi){		//This function is called when the casteling move is made
 	switch(posi){
 	case 6: this->Z[11]->move(5);
 		break;
@@ -238,7 +239,7 @@ void Game::castle_em(int posi){
 	}
 }
 
-void Game::castle(bool f){
+void Game::castle(bool f){		//This function is just to check if casteling is possible or not and if it is possible then add it to the moves the Zer0 can make
 	vector<int> tem;
 	int f_1, f_2;
 	f_1 = 1;
@@ -310,7 +311,7 @@ void Game::castle(bool f){
 	}
 }
 
-void Game::mover(int k, int posi, int l){
+void Game::mover(int k, int posi, int l){	//This function calles a function Peice::move() of the peice the user decides to move and on the baises of the data returned by the function calls other functions
 	int t;
 	if(k < 16){
 		for(int i=0;i<16;++i)
@@ -350,7 +351,7 @@ void Game::mover(int k, int posi, int l){
 	}
 }
 
-int Game::p2(bool b){
+int Game::p2(bool b){		//This function makes moves when you choose to play against a bot. This is a substitute to the bot.
 	int t;
 	if(b)
 		t = rand() % ( (this->chance) ? this->w_moves.size() : this->b_moves.size() );
@@ -360,7 +361,7 @@ int Game::p2(bool b){
 	return t;
 }
 
-void Game::begin(){
+void Game::begin(){		//This function askes users/bot for their turns and calls the Game::mover() to move the peice the user/bot selects
 	int opt;
 	while(1){
 		disp_help();
@@ -420,7 +421,7 @@ void Game::begin(){
 	
 }
 
-void Game::disp_g(){
+void Game::disp_g(){		//This function is used to display the current status of the board 
 	char board[8][8];
 	for(int i=0;i<8;++i)
 		for(int j=0;j<8;++j)
@@ -443,7 +444,7 @@ void Game::disp_g(){
 	cout<<endl<<" ---------------------------------"<<endl;
 }
 
-void Game::w_mov_Call(int k){
+void Game::w_mov_Call(int k){		//It calculates all posible moves the white side can make by calling the Peice::moves() function of every white peice and storing them in a vector (Game::w_moves)
 	vector<int> v;
 	this->w_moves.clear();
 	this->w_in_mov.clear();
@@ -454,7 +455,7 @@ void Game::w_mov_Call(int k){
 			v.clear();
 			this->Z[i]->moves(v);
 			if(k == 1)
-				this->check_checker(v, i);
+				this->check_checker(v, i);	//Gives a call to Game::check_checker() to remove the peices which lead to a check on the Zer0
 			for(int l=0;l<v.size();++l){
 				this->w_moves.push_back(v[l]);
 				this->w_in_mov.push_back(this->Z[i]->loc());
@@ -478,7 +479,7 @@ void Game::w_mov_Call(int k){
 	}
 }
 
-void Game::w_mov_Disp(){
+void Game::w_mov_Disp(){		//Displays all the possible moves the white side can make (gets its data from the vector Game::w_moves)
 	cout<<endl<<"Showing all possible white moves"<<endl;
 	for(int i=0;i<this->w_moves.size();++i){
 		cout<<i<<". "<<this->w_in_mov[i]<<" -> "<<this->w_moves[i]<<"                     ";
@@ -488,7 +489,7 @@ void Game::w_mov_Disp(){
 	cout<<endl;
 }
 
-void Game::b_mov_Call(int k){
+void Game::b_mov_Call(int k){		//Same as Game::w_mov_call
 	vector<int> v;
 	this->b_moves.clear();
 	this->b_in_mov.clear();
@@ -524,7 +525,7 @@ void Game::b_mov_Call(int k){
 	}
 }
 
-void Game::b_mov_Disp(){
+void Game::b_mov_Disp(){		//Same as Game::w_mov_Disp()
 	cout<<endl<<"Showing all possible black moves"<<endl;
 	for(int i=0;i<this->b_moves.size();++i){
 		cout<<i<<". "<<this->b_in_mov[i]<<" -> "<<this->b_moves[i]<<"                     ";
