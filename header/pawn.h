@@ -8,16 +8,16 @@ int Pawn::move(int k){
 	int t = 0;
 	board[this->pos/8][this->pos%8] = 0;
 	if(((this->pos%8 - k%8) == 1 || (k%8 - this->pos%8) == 1) && (board[k/8][k%8] == 0))
-		t = 4;
+		t = 4;	//to make an enpass move
 	if((this->pos/8 - k/8) == 2 || (k/8 - this->pos/8) == 2){
 		enpass = k;
-		t = 3;
+		t = 3;	//to enpass is available
 	}
 	this->pos = k;
 	if(k != -1)
 		board[this->pos/8][this->pos%8] = this->side;
 	if(((this->pos/8) == 7) || ((this->pos/8) == 0))
-		return 1;
+		return 1;	//for Promotion
 	return t;
 }
 

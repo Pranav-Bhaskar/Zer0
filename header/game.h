@@ -12,7 +12,7 @@ class Game{
 	
 	vector<int> post;
 	
-	bool chance;	//A variable to keep track of the turn 1->White; 2->Black;
+	bool chance;	//A variable to keep track of the turn true->White; false->Black;
 	
 	int *pos;	//This pointer will be used to point to an array of integers which would have position of all peices in the game
 	
@@ -21,8 +21,9 @@ class Game{
 	void b_mov_Call(int k = 1);
 	void b_mov_Disp();
 	
-	int check_mate;	//Check if the Zer0 is in a check mate position	
-	int stale_mate;	//Check if the Zer0 is in a stale mate position	
+	bool draw;
+	bool check_mate;	//Check if the Zer0 is in a check mate position	
+	bool stale_mate;	//Check if the Zer0 is in a stale mate position	
 	void check_checker(vector<int>&, int);	//A function to purify the moves the Zero can make
 	
 	void mover(int, int, int = 0);
@@ -33,12 +34,12 @@ class Game{
 	
 	void promote(int, int);
 	
-	int w_zer0;
-	int w_rok1;	//pos -> 0
-	int w_rok2;	//pos -> 7
-	int b_zer0;
-	int b_rok1;	//pos -> 56
-	int b_rok2;	//pos -> 63
+	bool w_zer0;
+	bool w_rok1;	//pos -> 0
+	bool w_rok2;	//pos -> 7
+	bool b_zer0;
+	bool b_rok1;	//pos -> 56
+	bool b_rok2;	//pos -> 63
 
 	void castle(bool);	//Adds the feature of castling
 	void castle_em(int);	//impliments castling
@@ -49,6 +50,9 @@ class Game{
 	bool player1;	//player ? pvp : bvp(bot vs player)
 	bool player2;
 	int p2(bool);	//the bot makes his chice here and returns it 
+	
+	int last_capture;
+	void hell_in_cell();
 	public:
 	Game();
 	void begin();
@@ -57,14 +61,15 @@ class Game{
 Game::Game(){
 	//initializing variables
 	this->chance = true;
-	this->check_mate = 0;
-	this->stale_mate = 0;
-	this->w_zer0 = 1;
-	this->w_rok1 = 1;
-	this->w_rok2 = 1;
-	this->b_zer0 = 1;
-	this->b_rok1 = 1;
-	this->b_rok2 = 1;
+	this->check_mate = false;
+	this->stale_mate = false;
+	this->draw = false;
+	this->w_zer0 = true;
+	this->w_rok1 = true;
+	this->w_rok2 = true;
+	this->b_zer0 = true;
+	this->b_rok1 = true;
+	this->b_rok2 = true;
 	this->pos = new int [32];
 	enpass = -1;
 	cout<<"\nCreating the Peices...";
@@ -130,6 +135,7 @@ Game::Game(){
 	cin>>ch;
 	this->player2 = (ch == '1') ? false : true;
 	srand(time(NULL));
+	this->last_capture = 0;
 }
 
 void Game::get_pos(){		//To get the currnt state of the board and store it as backup or checkpoint
@@ -241,18 +247,18 @@ void Game::castle_em(int posi){		//This function is called when the casteling mo
 
 void Game::castle(bool f){		//This function is just to check if casteling is possible or not and if it is possible then add it to the moves the Zer0 can make
 	vector<int> tem;
-	int f_1, f_2;
-	f_1 = 1;
-	f_2 = 1;
+	bool f_1, f_2;
+	f_1 = true;
+	f_2 = true;
 	if(f){
 		this->b_mov_Call(0);
 		for(int j = 0;j<this->b_moves.size();++j){
 			if(this->Z[0]->loc() == this->b_moves[j])
 				return ;
 			if((this->b_moves[j] == 3) || (this->b_moves[j] == 2))
-				f_1 = 0;
+				f_1 = false;
 			if((this->b_moves[j] == 5) || (this->b_moves[j] == 6))
-				f_2 = 0;
+				f_2 = false;
 		}
 		if(this->w_zer0 && this->w_rok1 && f_1){
 			this->Z[10]->moves(tem);
@@ -283,9 +289,9 @@ void Game::castle(bool f){		//This function is just to check if casteling is pos
 		if(this->z[0]->loc() == this->w_moves[j])
 			return ;
 		if((this->w_moves[j] == 59) || (this->w_moves[j] == 58))
-			f_1 = 0;
+			f_1 = false;
 		if((this->w_moves[j] == 61) || (this->w_moves[j] == 62))
-			f_2 = 0;
+			f_2 = false;
 	}
 	if(this->b_zer0 && this->b_rok1 && f_1){
 		this->z[10]->moves(tem);
@@ -313,13 +319,23 @@ void Game::castle(bool f){		//This function is just to check if casteling is pos
 
 void Game::mover(int k, int posi, int l){	//This function calles a function Peice::move() of the peice the user decides to move and on the baises of the data returned by the function calls other functions
 	int t;
+	if(l){
+		++this->last_capture;
+		if(this->last_capture > 50)
+			this->draw = true;
+	}
 	if(k < 16){
 		for(int i=0;i<16;++i)
-			if(this->pos[i + 16] == posi)
+			if(this->pos[i + 16] == posi){
 				this->z[i]->move(-1);
+				if(l)
+					this->last_capture = 0;
+			}
 		t = this->Z[k]->move(posi);
 		if(!l)
 			return ;
+		if((k>0)&&(k<9))
+			this->last_capture = 0;
 		switch(t){
 		case 1: this->promote(k, posi);
 			break;
@@ -334,11 +350,16 @@ void Game::mover(int k, int posi, int l){	//This function calles a function Peic
 	}
 	k -= 16;
 	for(int i=0;i<16;++i)
-		if(this->pos[i] == posi)
+		if(this->pos[i] == posi){
 			this->Z[i]->move(-1);
+			if(l)
+				this->last_capture = 0;
+		}
 	t = this->z[k]->move(posi);
 	if(!l)
 		return ;
+	if((k>0)&&(k<9))
+		this->last_capture = 0;
 	switch(t){
 	case 1: this->promote(k + 16, posi);
 		break;
@@ -349,6 +370,19 @@ void Game::mover(int k, int posi, int l){	//This function calles a function Peic
 		break;
 	default:enpass = -1;
 	}
+}
+
+void Game::hell_in_cell(){
+	int k = 0;
+	for(int i=0;i<16;++i){
+		if(this->Z[i]->loc() != -1)
+			++k;
+		if(this->z[i]->loc() != -1)
+			++k;
+	}
+	if(k == 2)
+		this->draw = true;
+	
 }
 
 int Game::p2(bool b){		//This function makes moves when you choose to play against a bot. This is a substitute to the bot.
@@ -367,43 +401,45 @@ void Game::begin(){		//This function askes users/bot for their turns and calls t
 		disp_help();
 		this->disp_g();
 		if(this->chance){
+			this->w_mov_Call();
+			this->hell_in_cell();
+			if(this->check_mate || this->stale_mate || this->draw)
+				break;
+			this->w_mov_Disp();
 			do{
-				this->w_mov_Call();
-				if((this->check_mate | this->stale_mate) == 1)
-					break;
-				this->w_mov_Disp();
 				opt = this->player1 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());
-			if((this->check_mate | this->stale_mate) == 1)
+			if(this->check_mate || this->stale_mate || this->draw)
 				break;
 			this->mover(this->post[opt], this->w_moves[opt], 1);
 			switch(this->post[opt]){
-			case 0: this->w_zer0 = 0;
+			case 0: this->w_zer0 = false;
 				break;
-			case 10: this->w_rok1 = 0;
+			case 10: this->w_rok1 = false;
 				break;
-			case 11: this->w_rok2 = 0;
+			case 11: this->w_rok2 = false;
 				break; 
 			}
 			this->get_pos();	//XLAR8 you have to give a call to your history function here; When doing so delete this call;
 		}
 		else{
+			this->b_mov_Call();
+			this->hell_in_cell();
+			if(this->check_mate || this->stale_mate || this->draw)
+				break;
+			this->b_mov_Disp();
 			do{
-				this->b_mov_Call();
-				if((this->check_mate | this->stale_mate) == 1)
-					break;
-				this->b_mov_Disp();
 				opt = this->player2 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());
-			if((this->check_mate | this->stale_mate) == 1)
+			if(this->check_mate || this->stale_mate || this->draw)
 				break;
 			this->mover(this->post[opt] + 16, this->b_moves[opt], 1);
 			switch(this->post[opt]){
-			case 0: this->b_zer0 = 0;
+			case 0: this->b_zer0 = false;
 				break;
-			case 10: this->b_rok1 = 0;
+			case 10: this->b_rok1 = false;
 				break;
-			case 11: this->b_rok2 = 0;
+			case 11: this->b_rok2 = false;
 				break; 
 			}
 			this->get_pos();	//XLAR8 you have to give a call to your history function here; When doing so delete this call;
@@ -414,6 +450,10 @@ void Game::begin(){		//This function askes users/bot for their turns and calls t
 		cout<<"\nCheckMate from ";
 	if(this->stale_mate)
 		cout<<"\nStaleMate from ";
+	if(this->draw){
+		cout<<"\nDraw\n";
+		return ;
+	}
 	if(this->chance)
 		cout<<"Black\n";
 	if(!this->chance)
@@ -472,10 +512,10 @@ void Game::w_mov_Call(int k){		//It calculates all posible moves the white side 
 		this->b_mov_Call(0);
 		for(int j = 0;j<this->b_moves.size();++j)
 			if(this->Z[0]->loc() == this->b_moves[j]){
-				this->check_mate = 1;
+				this->check_mate = true;
 				return ;
 			}
-		this->stale_mate = 1;
+		this->stale_mate = true;
 	}
 }
 
@@ -517,11 +557,11 @@ void Game::b_mov_Call(int k){		//Same as Game::w_mov_call
 		this->w_mov_Call(0);
 		for(int j = 0;j<this->w_moves.size();++j){
 			if(this->z[0]->loc() == this->w_moves[j]){
-				this->check_mate = 1;
+				this->check_mate = true;
 				return ;
 			}
 		}
-		this->stale_mate = 1;
+		this->stale_mate = true;
 	}
 }
 
