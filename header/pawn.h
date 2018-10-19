@@ -36,16 +36,16 @@ void Pawn::moves(vector<int> &v){
 		 	else
 		 	if(t == 2)
 		 		v.pop_back();
-		 		
+
 		 }
 		 else{
 		 	t = check_pos(v, this->pos + 8, this->side);
 		 	if(t == 2)
 		 		v.pop_back();
 		 }
-		 if(touch_pos(this->pos + 9, this->side) == 2)
+		 if((touch_pos(this->pos + 9, this->side) == 2) && (this->pos%8 !=7 ))
 			check_pos(v, this->pos + 9, this->side);
-		 if(touch_pos(this->pos + 7, this->side) == 2)
+		 if((touch_pos(this->pos + 7, this->side) == 2) && (this->pos%8 !=0 ))
 			check_pos(v, this->pos + 7, this->side);
 	}
 	else{
@@ -64,9 +64,9 @@ void Pawn::moves(vector<int> &v){
 		 	if(t == 2)
 		 		v.pop_back();
 		 }
-		 if(touch_pos(this->pos - 9, this->side) == 2)
+		 if((touch_pos(this->pos - 9, this->side) == 2) && (this->pos%8 !=0))
 			check_pos(v, this->pos - 9, this->side);
-		 if(touch_pos(this->pos - 7, this->side) == 2)
+		 if((touch_pos(this->pos - 7, this->side) == 2 ) && (this->pos%8 !=7))
 			check_pos(v, this->pos - 7, this->side);
 	}
 	if(enpass != -1){
