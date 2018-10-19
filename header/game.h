@@ -4,17 +4,21 @@ class Game{
 	//Black Peices
 	Peice* z[16];
 	//Vector For Keeping the Possible Moves for White
-	vector<int> w_moves;
-	vector<int> w_in_mov;
+	vector<int> w_moves;	//All possible locations the white peices can move to
+	vector<int> w_in_mov;	//In respect to the w_moves the initial position of any peice
 	//Vector For Keeping the Possible Moves for Black
 	vector<int> b_moves;
 	vector<int> b_in_mov;
 	
-	vector<int> post;
+	vector<int> post;	//contains the peice number of the move respective to w_momes or b_moves (depends on chance)
 	
 	bool chance;	//A variable to keep track of the turn true->White; false->Black;
 	
 	int *pos;	//This pointer will be used to point to an array of integers which would have position of all peices in the game
+	int lc;
+	bool cas[6];
+	string peice_char;
+	Peice* back_peice[32];
 	
 	void w_mov_Call(int k = 1);
 	void w_mov_Disp();
@@ -53,13 +57,21 @@ class Game{
 	
 	int last_capture;
 	void hell_in_cell();
+	
+	bool type;
+	bool saved;
+	int numb;
+	void promo(int, int);
+	void saver();
+	void saviour();
 	public:
-	Game();
+	Game(bool = false);
 	void begin();
 };
 
-Game::Game(){
+Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
 	//initializing variables
+	this->type = t;
 	this->chance = true;
 	this->check_mate = false;
 	this->stale_mate = false;
@@ -72,7 +84,7 @@ Game::Game(){
 	this->b_rok2 = true;
 	this->pos = new int [32];
 	enpass = -1;
-	cout<<"\nCreating the Peices...";
+	//Creating Peices
 	//White Peices
 	
 	this->Z[0] = new Zero;
@@ -99,8 +111,7 @@ Game::Game(){
 	for(int i=1;i<=8;++i)
 		this->z[i] = new Pawn;
 	
-	
-	cout<<"\nInitializing the Peices...";
+	//Initializing Peices
 	//White Peices
 	this->Z[0]->init(4, 3);
 	this->Z[9]->init(3, 3);
@@ -126,32 +137,64 @@ Game::Game(){
 	for(int i=1;i<=8;++i)
 		this->z[i]->init(i+47, 1);
 	
-	this->get_pos();	//making a backup of the current state of the board
-	char ch;
-	cout<<"\nPress 1 to make player 1 a bot : ";
-	cin>>ch;
-	this->player1 = (ch == '1') ? false : true;
-	cout<<"\nPress 1 to make player 2 a bot : ";
-	cin>>ch;
-	this->player2 = (ch == '1') ? false : true;
-	srand(time(NULL));
+	srand(time(NULL));	//remove this line after net is made
 	this->last_capture = 0;
+	
+	this->get_pos();	//making a backup of the current state of the board
+	if(this->type)
+		this->player1 = this->player2 = false;
+	else{
+		char ch;
+		cout<<"\nPress 1 to make player 1 a bot : ";
+		cin>>ch;
+		this->player1 = (ch == '1') ? false : true;
+		cout<<"\nPress 1 to make player 2 a bot : ";
+		cin>>ch;
+		this->player2 = (ch == '1') ? false : true;
+	}
 }
 
 void Game::get_pos(){		//To get the currnt state of the board and store it as backup or checkpoint
+	for(int i=0;i<16;++i){
+		this->back_peice[i] = this->Z[i];
+		this->back_peice[i + 16] = this->z[i];
+	}
 	for(int i=0;i<16;++i){
 		this->pos[i] = this->Z[i]->loc();
 		this->pos[i + 16] = this->z[i]->loc();
 	}
 	this->enpasser = enpass;
+	this->lc = this->last_capture;
+	this->cas[0] = this->w_zer0;
+	this->cas[1] = this->w_rok1;
+	this->cas[2] = this->w_rok2;
+	this->cas[3] = this->b_zer0;
+	this->cas[4] = this->b_rok1;
+	this->cas[5] = this->b_rok2;
+	peice_char = brd;
+	this->saved = true;
+	this->numb = 0;
 }
 
 void Game::set_pos(){		//A function to restore the state of the board which was made from using the get_pos() function
+	for(int i=0;i<16;++i){
+		this->Z[i] = this->back_peice[i];
+		this->z[i] = this->back_peice[i + 16];
+	}
 	for(int i=0;i<16;++i){
 		this->Z[i]->move(this->pos[i]);
 		this->z[i]->move(this->pos[i + 16]);
 	}
 	enpass = this->enpasser;
+	this->last_capture = this->lc;
+	this->w_zer0 = this->cas[0];
+	this->w_rok1 = this->cas[1];
+	this->w_rok2 = this->cas[2];
+	this->b_zer0 = this->cas[3];
+	this->b_rok1 = this->cas[4];
+	this->b_rok2 = this->cas[5];
+	brd = peice_char;
+	this->saved = true;
 }
 
 void Game::check_checker(vector<int> &v, int k){	//a function used to remove all the moves which could lead the Zer0 into check
@@ -337,7 +380,10 @@ void Game::mover(int k, int posi, int l){	//This function calles a function Peic
 		if((k>0)&&(k<9))
 			this->last_capture = 0;
 		switch(t){
-		case 1: this->promote(k, posi);
+		case 1: if(l == 1)
+				this->promote(k, posi);
+			else
+				this->promo(k, posi);
 			break;
 		case 2: this->castle_em(posi);
 			break;
@@ -361,7 +407,10 @@ void Game::mover(int k, int posi, int l){	//This function calles a function Peic
 	if((k>0)&&(k<9))
 		this->last_capture = 0;
 	switch(t){
-	case 1: this->promote(k + 16, posi);
+	case 1: if(l == 1)
+			this->promote(k + 16, posi);
+		else
+			this->promo(k + 16, posi);
 		break;
 	case 2: this->castle_em(posi);
 		break;
@@ -385,8 +434,79 @@ void Game::hell_in_cell(){
 	
 }
 
+void Game::promo(int k, int posi){
+	int opt;
+	Peice *tem;
+	for(int i=1;i<=4;++i){
+		switch(opt){
+		case 1: tem = new Queen;
+			brd[k] = 'Q';
+			break;
+		case 2: tem = new Rook;
+			brd[k] = 'R';
+			break;
+		case 3: tem = new Knight;
+			brd[k] = 'K';
+			break;
+		case 4: tem = new Bishop;
+			brd[k] = 'B';
+			break;
+		}
+		if(k < 16){
+			this->Z[k] = tem;
+			this->Z[k]->init(posi, 3);
+			this->saviour();
+			continue ;
+		}
+		k -= 16;
+		this->z[k] = tem;
+		this->z[k]->init(posi, 1);
+		this->saviour();
+		k += 16; 
+	}
+}
+
+void Game::saviour(){
+	this->saved = false;
+	int *temp;
+	ofstream f;
+	f.open(def_dir + "." + to_string(this->numb), ios::binary);
+	f << (this->chance) ? '1' : '0';	//Chance
+	temp = new int [4];
+	temp[0] = (this->w_zer0 && this->w_rok1) ? 1 : 0;	//White long
+	temp[1] = (this->w_zer0 && this->w_rok2) ? 1 : 0;	//white short
+	temp[2] = (this->w_zer0 && this->w_rok1) ? 1 : 0;	//black long
+	temp[3] = (this->w_zer0 && this->w_rok2) ? 1 : 0;	//black short
+	f.write((char *)& temp, sizeof(int) * 6);	//Castleing options
+	delete temp;
+	temp = new int [32];
+	for(int i=0;i<16;++i){
+		temp[i] = this->Z[i]->loc();
+		temp[i + 16] = this->z[i]->loc();
+	}
+	f.write((char *)& temp, sizeof(int) * 32);	//current positions
+	delete temp;
+	f.write((char *)& enpass, sizeof(int));	//stores the pos of enpass if possible
+	f.write((char *)& this->last_capture, sizeof(int));	//stores no of chances left
+	f.write((char *)& brd, sizeof(char) * 32);	//saves the lables of peices
+	f.close();
+	++this->numb;
+}
+
+void Game::saver(){
+	get_pos();
+	for(int i=0;i<this->post.size();++i){
+		this->mover(this->post[i], this->w_moves[i], 2);
+		if(this->saved)
+			this->saviour();
+		set_pos();
+	}
+}
+
 int Game::p2(bool b){		//This function makes moves when you choose to play against a bot. This is a substitute to the bot.
 	int t;
+	if(this->type)
+		this->saver();
 	if(b)
 		t = rand() % ( (this->chance) ? this->w_moves.size() : this->b_moves.size() );
 	else
@@ -405,12 +525,10 @@ void Game::begin(){		//This function askes users/bot for their turns and calls t
 			this->hell_in_cell();
 			if(this->check_mate || this->stale_mate || this->draw)
 				break;
-			this->w_mov_Disp();
+			//this->w_mov_Disp();
 			do{
 				opt = this->player1 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());
-			if(this->check_mate || this->stale_mate || this->draw)
-				break;
 			this->mover(this->post[opt], this->w_moves[opt], 1);
 			switch(this->post[opt]){
 			case 0: this->w_zer0 = false;
@@ -420,19 +538,16 @@ void Game::begin(){		//This function askes users/bot for their turns and calls t
 			case 11: this->w_rok2 = false;
 				break; 
 			}
-			this->get_pos();	//XLAR8 you have to give a call to your history function here; When doing so delete this call;
 		}
 		else{
 			this->b_mov_Call();
 			this->hell_in_cell();
 			if(this->check_mate || this->stale_mate || this->draw)
 				break;
-			this->b_mov_Disp();
+			//this->b_mov_Disp();
 			do{
 				opt = this->player2 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());
-			if(this->check_mate || this->stale_mate || this->draw)
-				break;
 			this->mover(this->post[opt] + 16, this->b_moves[opt], 1);
 			switch(this->post[opt]){
 			case 0: this->b_zer0 = false;
@@ -442,7 +557,6 @@ void Game::begin(){		//This function askes users/bot for their turns and calls t
 			case 11: this->b_rok2 = false;
 				break; 
 			}
-			this->get_pos();	//XLAR8 you have to give a call to your history function here; When doing so delete this call;
 		}
 		this->chance = !this->chance;
 	}

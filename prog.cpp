@@ -41,7 +41,7 @@
 
 int main (int argc, char const* argv[])
 {
-	Game g;
+	Game g(((argc == 2) && !(strcmp(argv[1], "TRAIN"))) ? true : false);
 	g.begin();
 	return 0;
 }

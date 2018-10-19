@@ -1,13 +1,16 @@
 #include<iostream>
 #include<vector>
-#include <cstdlib>	//For rand() and srand()
-#include <ctime>	//To get ime to seed random generator
+#include<cstdlib>	//For rand() and srand()
+#include<ctime>		//To get time to seed random generator
+#include<fstream>
+#include<string>
 
 using namespace std;
 
+string def_dir("./CheckPoint/check.point");
 int enpass;
 int board[8][8];
-char brd[] = {'Z', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'Q', 'R', 'R', 'B', 'B', 'K', 'K', 'Z', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'Q', 'R', 'R', 'B', 'B', 'K', 'K'};
+string brd("ZPPPPPPPPQRRBBKKZPPPPPPPPQRRBBKK");
 
 int siner();
 void disp_help();
