@@ -19,6 +19,9 @@ class Game{
 	bool cas[6];
 	string peice_char;
 	Peice* back_peice[32];
+	bool back_draw;
+	bool back_cm;
+	bool back_sm;
 	
 	void w_mov_Call(int k = 1);
 	void w_mov_Disp();
@@ -63,7 +66,9 @@ class Game{
 	int numb;
 	void promo(int, int);
 	void saver();
-	void saviour();
+	void saviour(int = 0);
+	int getter();
+	int promp;
 	public:
 	Game(bool = false);
 	void begin();
@@ -172,6 +177,9 @@ void Game::get_pos(){		//To get the currnt state of the board and store it as ba
 	this->cas[4] = this->b_rok1;
 	this->cas[5] = this->b_rok2;
 	peice_char = brd;
+	this->back_draw = this->draw;
+	this->back_cm = this->check_mate;
+	this->back_sm = this->stale_mate;
 	this->saved = true;
 	this->numb = 0;
 }
@@ -194,6 +202,9 @@ void Game::set_pos(){		//A function to restore the state of the board which was 
 	this->b_rok1 = this->cas[4];
 	this->b_rok2 = this->cas[5];
 	brd = peice_char;
+	this->draw = this->back_draw;
+	this->check_mate = this->back_cm;
+	this->stale_mate = this->back_sm;
 	this->saved = true;
 }
 
@@ -244,8 +255,9 @@ void Game::enpassent(bool k){		//This function will be called if any pawn moves 
 void Game::promote(int k, int posi){	//If a pawn reaches the end of the board this function is called to promote it to the peice it wants
 	int opt;
 	Peice *tem;
-	do{
+	if(!this->type)
 		cout<<"\n1.Queen\n2.Rook\n3.Knight\n4.Bishop\nEnter choice : ";
+	do{
 		if(this->chance)
 			opt = (this->player1) ? siner() : p2(false);
 		else
@@ -437,7 +449,7 @@ void Game::hell_in_cell(){
 void Game::promo(int k, int posi){
 	int opt;
 	Peice *tem;
-	for(int i=1;i<=4;++i){
+	for(opt=1;opt<=4;++opt){
 		switch(opt){
 		case 1: tem = new Queen;
 			brd[k] = 'Q';
@@ -455,77 +467,99 @@ void Game::promo(int k, int posi){
 		if(k < 16){
 			this->Z[k] = tem;
 			this->Z[k]->init(posi, 3);
-			this->saviour();
+			this->saviour(opt);
 			continue ;
 		}
 		k -= 16;
 		this->z[k] = tem;
 		this->z[k]->init(posi, 1);
-		this->saviour();
+		this->saviour(opt);
 		k += 16; 
 	}
+	++this->numb;
 }
 
-void Game::saviour(){
+void Game::saviour(int opt){
 	this->saved = false;
-	int *temp;
 	ofstream f;
-	f.open(def_dir + "." + to_string(this->numb), ios::binary);
-	f << (this->chance) ? '1' : '0';	//Chance
-	temp = new int [4];
-	temp[0] = (this->w_zer0 && this->w_rok1) ? 1 : 0;	//White long
-	temp[1] = (this->w_zer0 && this->w_rok2) ? 1 : 0;	//white short
-	temp[2] = (this->w_zer0 && this->w_rok1) ? 1 : 0;	//black long
-	temp[3] = (this->w_zer0 && this->w_rok2) ? 1 : 0;	//black short
-	f.write((char *)& temp, sizeof(int) * 6);	//Castleing options
-	delete temp;
-	temp = new int [32];
-	for(int i=0;i<16;++i){
-		temp[i] = this->Z[i]->loc();
-		temp[i + 16] = this->z[i]->loc();
+	if(opt != 0)
+		f.open(def_dir + to_string(this->numb) + "." + to_string((opt * 10) + 9), ios::binary);
+	else{
+		f.open(def_dir + to_string(this->numb), ios::binary);
+		++this->numb;
 	}
-	f.write((char *)& temp, sizeof(int) * 32);	//current positions
-	delete temp;
-	f.write((char *)& enpass, sizeof(int));	//stores the pos of enpass if possible
-	f.write((char *)& this->last_capture, sizeof(int));	//stores no of chances left
-	f.write((char *)& brd, sizeof(char) * 32);	//saves the lables of peices
+	f << (this->chance) ? '1' : '0';	//Chance
+	f << ",";
+	f << (this->w_zer0 && this->w_rok1) ? 1 : 0;	//White long
+	f << ",";
+	f << (this->w_zer0 && this->w_rok2) ? 1 : 0;	//white short
+	f << ",";
+	f << (this->b_zer0 && this->b_rok1) ? 1 : 0;	//black long
+	f << ",";
+	f << (this->b_zer0 && this->b_rok2) ? 1 : 0;	//black short
+	f << ",";
+	for(int i=0;i<16;++i)
+		f << this->Z[i]->loc() << ",";
+	for(int i=0;i<16;++i)
+		f << this->z[i]->loc() << ",";	//current positions
+	f << enpass << ",";	//stores the pos of enpass if possible
+	f << this->last_capture << ",";	//stores no of chances left
+	f << brd;	//saves the lables of peices
 	f.close();
-	++this->numb;
 }
 
 void Game::saver(){
 	get_pos();
 	for(int i=0;i<this->post.size();++i){
-		this->mover(this->post[i], this->w_moves[i], 2);
+		if(this->chance)
+			this->mover(this->post[i], this->w_moves[i], 2);
+		else
+			this->mover(this->post[i], this->b_moves[i], 2);
 		if(this->saved)
 			this->saviour();
 		set_pos();
 	}
 }
 
+int Game::getter(){
+	ifstream f;
+	f.open("./CheckPoint/.move", ios::binary);
+	double s;
+	f>>s;
+	int k = s;
+	this->promp = (s*10) - (k*10);
+	f.close();
+	return k;
+}
+
 int Game::p2(bool b){		//This function makes moves when you choose to play against a bot. This is a substitute to the bot.
 	int t;
-	if(this->type)
+	if(b){
 		this->saver();
-	if(b)
-		t = rand() % ( (this->chance) ? this->w_moves.size() : this->b_moves.size() );
+		system("python3 prog.py");
+		t = getter();
+	}
 	else
-		t = ( rand() % 4 ) + 1;
-	cout<<endl<<t;
+		t = this->promp;
+	if(!this->type)
+			cout<<endl<<t;
 	return t;
 }
 
 void Game::begin(){		//This function askes users/bot for their turns and calls the Game::mover() to move the peice the user/bot selects
 	int opt;
 	while(1){
-		disp_help();
-		this->disp_g();
+		if(!this->type){
+			disp_help();
+			this->disp_g();
+		}
 		if(this->chance){
 			this->w_mov_Call();
 			this->hell_in_cell();
 			if(this->check_mate || this->stale_mate || this->draw)
 				break;
-			//this->w_mov_Disp();
+			if(!this->type)
+				this->w_mov_Disp();
 			do{
 				opt = this->player1 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());
@@ -544,7 +578,8 @@ void Game::begin(){		//This function askes users/bot for their turns and calls t
 			this->hell_in_cell();
 			if(this->check_mate || this->stale_mate || this->draw)
 				break;
-			//this->b_mov_Disp();
+			if(!this->type)
+				this->b_mov_Disp();
 			do{
 				opt = this->player2 ? siner() : p2(true);
 			}while(opt < 0 || opt >= this->post.size());

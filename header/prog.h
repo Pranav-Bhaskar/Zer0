@@ -2,12 +2,13 @@
 #include<vector>
 #include<cstdlib>	//For rand() and srand()
 #include<ctime>		//To get time to seed random generator
+#include<cstring>
 #include<fstream>
 #include<string>
 
 using namespace std;
 
-string def_dir("./CheckPoint/check.point");
+string def_dir("./CheckPoint/");
 int enpass;
 int board[8][8];
 string brd("ZPPPPPPPPQRRBBKKZPPPPPPPPQRRBBKK");
