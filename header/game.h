@@ -483,9 +483,9 @@ void Game::saviour(int opt){
 	this->saved = false;
 	ofstream f;
 	if(opt != 0)
-		f.open(def_dir + to_string(this->numb) + "." + to_string((opt * 10) + 9), ios::binary);
+		f.open((def_dir + t_string(this->numb) + "." + t_string((opt * 10) + 9)).c_str(), ios::binary);
 	else{
-		f.open(def_dir + to_string(this->numb), ios::binary);
+		f.open((def_dir + t_string(this->numb)).c_str(), ios::binary);
 		++this->numb;
 	}
 	f << (this->chance) ? '1' : '0';	//Chance
@@ -536,7 +536,8 @@ int Game::p2(bool b){		//This function makes moves when you choose to play again
 	int t;
 	if(b){
 		this->saver();
-		system("python3 prog.py");
+		string s(python);
+		system((s + " prog.py").c_str());
 		t = getter();
 	}
 	else

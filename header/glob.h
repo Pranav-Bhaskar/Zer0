@@ -44,6 +44,17 @@ int touch_pos(int pos, int side){
 	return 0;
 }
 
+string t_string(int num)
+{
+string s;
+while(num){
+    s.push_back(num%10 + '0');
+    num /= 10;
+}
+reverse(s.begin(), s.end());
+return s;
+}
+
 void disp_brd(){
 	for(int i=7;i >= 0 ;--i){
 		cout<<endl<<" ---------------------------------"<<endl<<" |";

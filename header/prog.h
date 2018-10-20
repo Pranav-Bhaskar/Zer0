@@ -5,7 +5,11 @@
 #include<cstring>
 #include<fstream>
 #include<string>
-
+#ifdef WIN32
+#define python "py"
+#elif __linux__
+#define python "python3"
+#endif
 using namespace std;
 
 string def_dir("./CheckPoint/");
@@ -18,6 +22,7 @@ void disp_help();
 int check_pos(vector<int>&, int, int);
 int touch_pos(int, int);
 void disp_brd();
+string t_string(int);
 
 #include "peice.h"	//For the Base/Parent Class Peice
 #include "zer0.h"	//For the derived/child Class Zero
@@ -29,4 +34,4 @@ void disp_brd();
 
 #include "game.h"	//For the main class which hanndels all the peices and the board
 
-#include "glob.h"	//For the defination of Globaly declared function 
+#include "glob.h"	//For the defination of Globaly declared function
