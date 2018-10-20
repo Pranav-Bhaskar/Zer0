@@ -71,7 +71,7 @@ class Game{
 	int promp;
 	public:
 	Game(bool = false);
-	void begin();
+	int begin();
 };
 
 Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
@@ -546,7 +546,7 @@ int Game::p2(bool b){		//This function makes moves when you choose to play again
 	return t;
 }
 
-void Game::begin(){		//This function askes users/bot for their turns and calls the Game::mover() to move the peice the user/bot selects
+int Game::begin(){		//This function askes users/bot for their turns and calls the Game::mover() to move the peice the user/bot selects
 	int opt;
 	while(1){
 		if(!this->type){
@@ -597,17 +597,20 @@ void Game::begin(){		//This function askes users/bot for their turns and calls t
 	}
 	if(this->check_mate)
 		cout<<"\nCheckMate from ";
-	if(this->stale_mate)
-		cout<<"\nStaleMate from ";
+	if(this->stale_mate){
+		cout<<"\nStaleMate";
+		return 0;
+	}
 	if(this->draw){
 		cout<<"\nDraw\n";
-		return ;
+		return 0;
 	}
-	if(this->chance)
+	if(this->chance){
 		cout<<"Black\n";
-	if(!this->chance)
-		cout<<"White\n";
-	
+		return 2;
+	}
+	cout<<"White\n";
+	return 1;
 }
 
 void Game::disp_g(){		//This function is used to display the current status of the board 

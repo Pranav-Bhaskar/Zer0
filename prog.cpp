@@ -42,6 +42,7 @@
 int main (int argc, char const* argv[])
 {
 	Game g(((argc == 2) && !(strcmp(argv[1], "TRAIN"))) ? true : false);
-	g.begin();
+	int r = g.begin();
+	system(("python3 collector " + t_string(r)).c_str());
 	return 0;
 }

@@ -7,3 +7,5 @@
 prog\.exe
 
 prog\.o
+
+network/__pycache__/
