@@ -32,7 +32,7 @@ def reader():
 		k = [str(processed[0][x]) for x in range(71)]
 		k = ','.join(k)
 		val.append((predicted, direc, k))
-	sorted(val, key=lambda x: x[0])
+	sorted(val, key=lambda x: x[0][0])
 	for x in val[:-1]:
 		if x[2][0] is '1':
 			f = open(def_dir + "white/.wrong", "a+")

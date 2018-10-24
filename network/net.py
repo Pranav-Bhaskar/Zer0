@@ -4,10 +4,9 @@ import numpy as np
 class Model:
 	def __init__(self):
 		self.model = keras.Sequential([
-			keras.layers.Dense(64, input_shape=(71, ), activation='relu'),
+			keras.layers.Dense(71, input_shape=(71, ), activation='relu'),
 			keras.layers.Dense(64, activation='relu'),
-			keras.layers.Dense(8, activation='relu'),
-			keras.layers.Dense(1, activation='softmax'),
+			keras.layers.Dense(1, activation='sigmoid'),
 		])
 		self.model.compile(optimizer=keras.optimizers.Adam(0.01),
 			loss='mse',

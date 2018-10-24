@@ -44,15 +44,16 @@ int touch_pos(int pos, int side){
 	return 0;
 }
 
-string t_string(int num)
-{
-string s;
-while(num){
-    s.push_back(num%10 + '0');
-    num /= 10;
-}
-reverse(s.begin(), s.end());
-return s;
+string t_string(int num){
+	string s;
+	if(num == 0)
+		return string("0");
+	while(num){
+		s.push_back(num%10 + '0');
+		num /= 10;
+	}
+	reverse(s.begin(), s.end());
+	return s;
 }
 
 void disp_brd(){
@@ -62,6 +63,19 @@ void disp_brd(){
 			cout<<" "<<board[i][j]<<" |";
 	}
 	cout<<endl<<" ---------------------------------"<<endl;
+}
+
+int freak_counter(vector<string>& v){
+	if(v.size() <= 0)
+		return 0;
+	map<string, int> fMap;
+	int mFreak = 0;
+	for (string x : v){
+		int f = ++fMap[x];
+		if (f > mFreak)
+			mFreak = f;
+	}
+	return mFreak;
 }
 
 int siner(){

@@ -1,10 +1,10 @@
 #include<iostream>
 #include<vector>
-#include<cstdlib>	//For rand() and srand()
-#include<ctime>		//To get time to seed random generator
 #include<cstring>
 #include<fstream>
 #include<string>
+#include<map>
+#include<algorithm> 
 #ifdef WIN32
 #define python "py"
 #elif __linux__
@@ -23,6 +23,7 @@ int check_pos(vector<int>&, int, int);
 int touch_pos(int, int);
 void disp_brd();
 string t_string(int);
+int freak_counter(vector<string>&);
 
 #include "peice.h"	//For the Base/Parent Class Peice
 #include "zer0.h"	//For the derived/child Class Zero

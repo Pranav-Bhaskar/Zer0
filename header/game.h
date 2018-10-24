@@ -69,6 +69,9 @@ class Game{
 	void saviour(int = 0);
 	int getter();
 	int promp;
+	
+	vector<string> dope_noob;
+	void noob_dope();
 	public:
 	Game(bool = false);
 	int begin();
@@ -142,7 +145,8 @@ Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
 	for(int i=1;i<=8;++i)
 		this->z[i]->init(i+47, 1);
 	
-	srand(time(NULL));	//remove this line after net is made
+	this->dope_noob.clear();
+	
 	this->last_capture = 0;
 	
 	this->get_pos();	//making a backup of the current state of the board
@@ -443,7 +447,18 @@ void Game::hell_in_cell(){
 	}
 	if(k == 2)
 		this->draw = true;
-	
+}
+
+void Game::noob_dope(){
+	string s;
+	s.clear();
+	for(int i=0;i<16;++i)
+		s += t_string(this->Z[i]->loc());
+	for(int i=0;i<16;++i)
+		s += t_string(this->z[i]->loc());
+	this->dope_noob.push_back(s);
+	if(freak_counter(this->dope_noob) > 2)
+		this->draw = true;
 }
 
 void Game::promo(int k, int posi){
@@ -550,6 +565,7 @@ int Game::p2(bool b){		//This function makes moves when you choose to play again
 int Game::begin(){		//This function askes users/bot for their turns and calls the Game::mover() to move the peice the user/bot selects
 	int opt;
 	while(1){
+		this->noob_dope();
 		if(!this->type){
 			disp_help();
 			this->disp_g();
