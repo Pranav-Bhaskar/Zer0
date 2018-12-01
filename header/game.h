@@ -70,16 +70,25 @@ class Game{
 	int getter();
 	int promp;
 	
+	Sock* s;
+	
 	vector<string> dope_noob;
 	void noob_dope();
 	public:
 	Game(bool = false);
 	int begin();
+	~Game();
 };
+
+Game::~Game(){
+	if(this->s != NULL)
+		system("rm -f server.lock");
+}
 
 Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
 	//initializing variables
 	this->type = t;
+	this->s = NULL;
 	this->chance = true;
 	this->check_mate = false;
 	this->stale_mate = false;
@@ -150,8 +159,10 @@ Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
 	this->last_capture = 0;
 	
 	this->get_pos();	//making a backup of the current state of the board
-	if(this->type)
+	if(this->type){
 		this->player1 = this->player2 = false;
+		make_server();
+	}
 	else{
 		char ch;
 		cout<<"\nPress 1 to make player 1 a bot : ";
@@ -160,6 +171,8 @@ Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
 		cout<<"\nPress 1 to make player 2 a bot : ";
 		cin>>ch;
 		this->player2 = (ch == '1') ? false : true;
+		if(!(this->player1 && this->player2))
+			make_server();
 	}
 }
 
@@ -551,8 +564,9 @@ int Game::p2(bool b){		//This function makes moves when you choose to play again
 	int t;
 	if(b){
 		this->saver();
-		string s(python);
-		system((s + " prog.py").c_str());
+		this->s = new Sock;
+		this->s->sender();
+		this->s->recver();
 		t = getter();
 	}
 	else

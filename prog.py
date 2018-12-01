@@ -1,6 +1,8 @@
 import os
 import numpy
 from network.net import Model
+import socket
+from pathlib import Path
 
 def_dir = "./CheckPoint/"
 spe = ['.move', 'black', 'white']
@@ -15,10 +17,8 @@ def pre_process(k):
 	k = [int(x) for x in k]
 	return numpy.array(k)
 
-def reader():
+def reader(m):
 	val = []
-	m = Model()
-	m.load()
 	l = [f for f in os.listdir(def_dir) if f not in spe]
 	for direc in l:
 		with open(def_dir + direc, "r") as f:
@@ -54,5 +54,20 @@ def reader():
 	f.write('\n')
 	f.close()
 
+def connector(s):
+	c, md = s.accept()
+	reader(m)
+	c.close()
+	print('done')
+
 if __name__ == '__main__':
-	reader()
+	m = Model()
+	m.load()
+	s = socket.socket()
+	s.bind(('127.0.0.1', 8888))
+	s.listen(99)
+	open('./done.server', 'a').close()
+	lock_file = Path('./server.lock')
+	while lock_file.is_file():
+		connector(s)
+	s.close()

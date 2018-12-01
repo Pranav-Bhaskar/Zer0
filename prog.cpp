@@ -46,6 +46,7 @@ int main (int argc, char const* argv[])
 	string s = python;
 	s += string(" collector.py ");
 	s += t_string(r);
+	cout<<"\nCollecting data for training...";
 	system(s.c_str());
 	return 0;
 }

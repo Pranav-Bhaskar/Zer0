@@ -94,3 +94,21 @@ int siner(){
 	}
 	return number;
 }
+
+void make_server(){
+	string s = python;
+	s += string(" prog.py &");
+	ofstream f;
+	f.open("server.lock");
+	f.close();
+	system(s.c_str());
+    	while(1){
+    		ifstream k("done.server");
+    		if(k.good()){
+    			k.close();
+    			break;
+    		}
+    		k.close();
+    	}
+    	system("rm -f done.server");
+}
