@@ -71,6 +71,7 @@ class Game{
 	int promp;
 	
 	Sock* s;
+	bool server;
 	
 	vector<string> dope_noob;
 	void noob_dope();
@@ -162,6 +163,7 @@ Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
 	if(this->type){
 		this->player1 = this->player2 = false;
 		make_server();
+		this->server = true;
 	}
 	else{
 		char ch;
@@ -171,9 +173,12 @@ Game::Game(bool t){		//If flase : for playing (predicting); true : for training;
 		cout<<"\nPress 1 to make player 2 a bot : ";
 		cin>>ch;
 		this->player2 = (ch == '1') ? false : true;
-		if(!(this->player1 && this->player2))
+		if(!(this->player1 && this->player2)){
 			make_server();
+			this->server = true;
+		}
 	}
+	this->s = new Sock;
 }
 
 void Game::get_pos(){		//To get the currnt state of the board and store it as backup or checkpoint
@@ -564,7 +569,6 @@ int Game::p2(bool b){		//This function makes moves when you choose to play again
 	int t;
 	if(b){
 		this->saver();
-		this->s = new Sock;
 		this->s->sender();
 		this->s->recver();
 		t = getter();
@@ -626,6 +630,8 @@ int Game::begin(){		//This function askes users/bot for their turns and calls th
 		}
 		this->chance = !this->chance;
 	}
+	if(this->server)
+		this->s->ender();
 	if(this->check_mate)
 		cout<<"\nCheckMate from ";
 	if(this->stale_mate){

@@ -5,9 +5,8 @@
 #include<string>
 #include<map>
 #include<algorithm>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include<arpa/inet.h>
+#include<unistd.h>
 #ifdef WIN32
 #define python "py"
 #elif __linux__

@@ -32,7 +32,7 @@ def reader(m):
 		k = [str(processed[0][x]) for x in range(71)]
 		k = ','.join(k)
 		val.append((predicted, direc, k))
-	sorted(val, key=lambda x: x[0][0])
+	val.sort(key=lambda x: x[0][0])
 	for x in val[:-1]:
 		if x[2][0] is '1':
 			f = open(def_dir + "white/.wrong", "a+")
@@ -41,7 +41,6 @@ def reader(m):
 		f.write(str(x[2]))
 		f.write('\n')
 		f.close()
-	
 	f = open(def_dir + ".move", "w")
 	f.write(str(val[-1][1]))
 	f.close()
@@ -54,11 +53,13 @@ def reader(m):
 	f.write('\n')
 	f.close()
 
-def connector(s):
-	c, md = s.accept()
+def connector(c):
+	k = c.recv(1024).decode()
+	if k.strip() == '1':
+		return True
 	reader(m)
-	c.close()
-	print('done')
+	c.send('1'.encode())
+	return False
 
 if __name__ == '__main__':
 	m = Model()
@@ -68,6 +69,8 @@ if __name__ == '__main__':
 	s.listen(99)
 	open('./done.server', 'a').close()
 	lock_file = Path('./server.lock')
+	c, md = s.accept()
 	while lock_file.is_file():
-		connector(s)
+		if connector(c):
+			break
 	s.close()
